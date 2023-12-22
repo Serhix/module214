@@ -92,8 +92,6 @@ async def get_contact(
 # RateLimiter need Redis
 # @router.post("/", response_model=ContactResponse, status_code=status.HTTP_201_CREATED,
 #              description='No more than 1 requests per 10 second', dependencies=[Depends(RateLimiter(times=1, seconds=10))])
-
-
 @router.post("/", response_model=ContactResponse, status_code=status.HTTP_201_CREATED)
 async def create_contact(
     body: ContactModel,

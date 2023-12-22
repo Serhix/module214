@@ -195,7 +195,4 @@ async def get_upcoming_birthdays(limit: int, offset: int, user: User, db: Sessio
         .offset(offset)
         .all()
     )
-    # print(contacts[0].birthday)
-    # print(contacts[1].birthday)
-    # print('len: ', len(contacts), 'user: ', user.id)
     return contacts

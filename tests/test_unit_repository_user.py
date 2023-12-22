@@ -1,8 +1,6 @@
 import unittest
 from unittest.mock import MagicMock
 
-from libgravatar import Gravatar
-from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from src.database.models import User

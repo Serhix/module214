@@ -2,11 +2,10 @@ import datetime
 import unittest
 from unittest.mock import MagicMock
 
-from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from src.database.models import Contact, User
-from src.schemas import ContactModel, ContactResponse
+from src.schemas import ContactModel
 from src.repository.contacts import (
     get_contacts,
     get_contact_by_id,
