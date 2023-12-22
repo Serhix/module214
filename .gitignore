@@ -164,3 +164,4 @@ cython_debug/
 .idea/misc.xml
 .idea/inspectionProfiles/profiles_settings.xml
 .idea/dbnavigator.xml
+/coverage_html_report/
