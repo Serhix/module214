@@ -7,7 +7,9 @@ from src.database.models import Contact, User
 from src.schemas import ContactModel
 
 
-async def get_contacts(limit: int, offset: int, user: User, db: Session, first_name, last_name, email):
+async def get_contacts(
+    limit: int, offset: int, user: User, db: Session, first_name, last_name, email
+):
     """
     The get_contacts function returns a list of contacts for the user.
         The function takes in three parameters: limit, offset, and user.
@@ -29,38 +31,68 @@ async def get_contacts(limit: int, offset: int, user: User, db: Session, first_n
     contacts_by_last_name = []
     contacts_by_email = []
     if first_name is not None:
-        contacts_by_first_name = db.query(Contact).filter(
-            and_(Contact.user_id == user.id, Contact.first_name.contains(first_name))).limit(limit).offset(offset).all()
+        contacts_by_first_name = (
+            db.query(Contact)
+            .filter(
+                and_(
+                    Contact.user_id == user.id, Contact.first_name.contains(first_name)
+                )
+            )
+            .limit(limit)
+            .offset(offset)
+            .all()
+        )
     if last_name is not None:
-        contacts_by_last_name = db.query(Contact).filter(
-            and_(Contact.user_id == user.id, Contact.last_name.contains(last_name))).limit(limit).offset(offset).all()
+        contacts_by_last_name = (
+            db.query(Contact)
+            .filter(
+                and_(Contact.user_id == user.id, Contact.last_name.contains(last_name))
+            )
+            .limit(limit)
+            .offset(offset)
+            .all()
+        )
     if email is not None:
-        contacts_by_email = db.query(Contact).filter(
-            and_(Contact.user_id == user.id, Contact.email.contains(email))).limit(limit).offset(offset).all()
+        contacts_by_email = (
+            db.query(Contact)
+            .filter(and_(Contact.user_id == user.id, Contact.email.contains(email)))
+            .limit(limit)
+            .offset(offset)
+            .all()
+        )
     contacts = set(contacts_by_first_name + contacts_by_last_name + contacts_by_email)
     if contacts:
         return contacts
     else:
-        contacts = db.query(Contact).filter_by(user_id=user.id).limit(limit).offset(offset).all()
+        contacts = (
+            db.query(Contact)
+            .filter_by(user_id=user.id)
+            .limit(limit)
+            .offset(offset)
+            .all()
+        )
     return contacts
 
 
 async def get_contact_by_id(contact_id: int, user: User, db: Session):
     """
-The get_contact_by_id function returns a contact object from the database based on the user's id and the contact's id.
-The function takes in three parameters:
-    -contact_id: an integer representing the unique identifier of a specific contact.
-    -user: an object representing a user that is logged into our application. This parameter is used to ensure that only
-    contacts belonging to this particular user are returned by this function.
-    -db: an SQLAlchemy Session instance, which represents our connection to the database.
+    The get_contact_by_id function returns a contact object from the database based on the user's id and the contact's id.
+    The function takes in three parameters:
+        -contact_id: an integer representing the unique identifier of a specific contact.
+        -user: an object representing a user that is logged into our application. This parameter is used to ensure that only
+        contacts belonging to this particular user are returned by this function.
+        -db: an SQLAlchemy Session instance, which represents our connection to the database.
 
-:param contact_id: int: Specify the id of the contact that we want to retrieve
-:param user: User: Get the user's id
-:param db: Session: Pass in the database session
-:return: A contact object
-:doc-author: Trelent
-"""
-    contact = db.query(Contact).filter(and_(Contact.user_id == user.id, Contact.id == contact_id)).first()
+    :param contact_id: int: Specify the id of the contact that we want to retrieve
+    :param user: User: Get the user's id
+    :param db: Session: Pass in the database session
+    :return: A contact object
+    :doc-author: Trelent"""
+    contact = (
+        db.query(Contact)
+        .filter(and_(Contact.user_id == user.id, Contact.id == contact_id))
+        .first()
+    )
     return contact
 
 
@@ -147,11 +179,22 @@ async def get_upcoming_birthdays(limit: int, offset: int, user: User, db: Sessio
     :return: A list of contacts that have birthdays in the next week
     :doc-author: Trelent
     """
-    
+
     next_week = datetime.now().date() + timedelta(weeks=1)
     # print(next_week)
-    contacts = db.query(Contact).filter(and_(Contact.user_id == user.id, Contact.birthday >= datetime.now().date(),
-                                             Contact.birthday <= next_week)).limit(limit).offset(offset).all()
+    contacts = (
+        db.query(Contact)
+        .filter(
+            and_(
+                Contact.user_id == user.id,
+                Contact.birthday >= datetime.now().date(),
+                Contact.birthday <= next_week,
+            )
+        )
+        .limit(limit)
+        .offset(offset)
+        .all()
+    )
     # print(contacts[0].birthday)
     # print(contacts[1].birthday)
     # print('len: ', len(contacts), 'user: ', user.id)

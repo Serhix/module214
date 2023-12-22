@@ -1,8 +1,21 @@
 import json
 
-from fastapi import APIRouter, HTTPException, Depends, status, Security, BackgroundTasks, Request, Form
+from fastapi import (
+    APIRouter,
+    HTTPException,
+    Depends,
+    status,
+    Security,
+    BackgroundTasks,
+    Request,
+    Form,
+)
 from fastapi.responses import HTMLResponse
-from fastapi.security import OAuth2PasswordRequestForm, HTTPAuthorizationCredentials, HTTPBearer
+from fastapi.security import (
+    OAuth2PasswordRequestForm,
+    HTTPAuthorizationCredentials,
+    HTTPBearer,
+)
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
 from sqlalchemy.orm import Session
@@ -13,7 +26,7 @@ from src.repository import users as repository_users
 from src.services.auth import auth_service
 from src.services.email import send_verification_email, send_reset_email
 
-router = APIRouter(prefix='/auth', tags=["auth"])
+router = APIRouter(prefix="/auth", tags=["auth"])
 security = HTTPBearer()
 
 parent_directory = Path(__file__).parent.parent
@@ -25,8 +38,15 @@ if not templates_path.exists():
 templates = Jinja2Templates(directory=templates_path)
 
 
-@router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def signup(body: UserModel, background_tasks: BackgroundTasks, request: Request, db: Session = Depends(get_db)):
+@router.post(
+    "/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED
+)
+async def signup(
+    body: UserModel,
+    background_tasks: BackgroundTasks,
+    request: Request,
+    db: Session = Depends(get_db),
+):
     """
     The signup function creates a new user in the database.
         It takes a UserModel object as input, which is validated by pydantic.
@@ -43,11 +63,18 @@ async def signup(body: UserModel, background_tasks: BackgroundTasks, request: Re
     """
     exist_user = await repository_users.get_user_by_email(body.email, db)
     if exist_user:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Account already exists")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Account already exists"
+        )
     body.password = auth_service.get_password_hash(body.password)
     new_user = await repository_users.create_user(body, db)
-    background_tasks.add_task(send_verification_email, new_user.email, new_user.username, request.base_url)
-    return {"user": new_user, "detail": "User successfully created. Check your email for confirmation."}
+    background_tasks.add_task(
+        send_verification_email, new_user.email, new_user.username, request.base_url
+    )
+    return {
+        "user": new_user,
+        "detail": "User successfully created. Check your email for confirmation.",
+    }
 
 
 @router.post("/login", response_model=TokenModel)
@@ -86,8 +113,11 @@ async def login(
     }
 
 
-@router.get('/refresh_token', response_model=TokenModel)
-async def refresh_token(credentials: HTTPAuthorizationCredentials = Security(security), db: Session = Depends(get_db)):
+@router.get("/refresh_token", response_model=TokenModel)
+async def refresh_token(
+    credentials: HTTPAuthorizationCredentials = Security(security),
+    db: Session = Depends(get_db),
+):
     """
     The refresh_token function is used to refresh the access token.
         The function takes in a refresh token and returns an access_token, a new refresh_token, and the type of token.
@@ -103,12 +133,18 @@ async def refresh_token(credentials: HTTPAuthorizationCredentials = Security(sec
     user = await repository_users.get_user_by_email(email, db)
     if user.refresh_token != token:
         await repository_users.update_token(user, None, db)
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token"
+        )
 
     access_token = await auth_service.create_access_token(data={"sub": email})
     refresh_token = await auth_service.create_refresh_token(data={"sub": email})
     await repository_users.update_token(user, refresh_token, db)
-    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+    }
 
 
 @router.get("/confirmed_email/{token}")
@@ -169,10 +205,10 @@ async def verify_by_email(
 
 @router.post("/forgot_password", status_code=status.HTTP_202_ACCEPTED)
 async def forgot_password(
-        body: RequestEmail,
-        background_tasks: BackgroundTasks,
-        request: Request,
-        db: Session = Depends(get_db)
+    body: RequestEmail,
+    background_tasks: BackgroundTasks,
+    request: Request,
+    db: Session = Depends(get_db),
 ):
     """
     The forgot_password function is used to send a reset password email to the user.
@@ -194,7 +230,6 @@ async def forgot_password(
 
 @router.get("/reset_password_template/{token}", response_class=HTMLResponse)
 async def reset_password_template(request: Request, db: Session = Depends(get_db)):
-
     """
     The reset_password_template function is used to render the reset_password.html template, which allows a user
     to change their password after they have requested a password reset. The function takes in the token that was sent
@@ -207,12 +242,14 @@ async def reset_password_template(request: Request, db: Session = Depends(get_db
     :doc-author: Trelent
     """
     try:
-        token = request.path_params.get('token')
+        token = request.path_params.get("token")
         email = await auth_service.get_email_from_token(token)
         user = await repository_users.get_user_by_email(email, db)
 
         if user is None:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token"
+            )
 
         return templates.TemplateResponse(
             "reset_password.html",
@@ -221,17 +258,23 @@ async def reset_password_template(request: Request, db: Session = Depends(get_db
                 "host": request.base_url,
                 "username": user.username,
                 "token": token,
-                "email": email
-            }
+                "email": email,
+            },
         )
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"An unexpected error occurred. Report this message to support: {e}")
+            status_code=500,
+            detail=f"An unexpected error occurred. Report this message to support: {e}",
+        )
 
 
 @router.post("/reset_password/{token}", response_model=dict)
-async def reset_password(request: Request, new_password: str = Form(...), confirm_password: str = Form(...), db: Session = Depends(get_db)):
-
+async def reset_password(
+    request: Request,
+    new_password: str = Form(...),
+    confirm_password: str = Form(...),
+    db: Session = Depends(get_db),
+):
     """
     The reset_password function is used to reset a user's password.
         It takes in the new_password and confirm_password as form data,
@@ -246,10 +289,10 @@ async def reset_password(request: Request, new_password: str = Form(...), confir
     """
 
     if new_password != confirm_password:
-        raise HTTPException (status_code=422, detail='Unprocessable Entity')
+        raise HTTPException(status_code=422, detail="Unprocessable Entity")
 
     try:
-        token = request.path_params.get('token')
+        token = request.path_params.get("token")
         email = await auth_service.get_email_from_token(token)
 
         hashed_password = auth_service.get_password_hash(new_password)
@@ -257,8 +300,8 @@ async def reset_password(request: Request, new_password: str = Form(...), confir
         await repository_users.update_password(user, hashed_password, db)
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"An unexpected error occurred. Report this message to support: {e}")
+            status_code=500,
+            detail=f"An unexpected error occurred. Report this message to support: {e}",
+        )
 
     return {"message": "Password reset successfully"}
-
-

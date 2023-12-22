@@ -25,19 +25,29 @@ class TestContacts(unittest.IsolatedAsyncioTestCase):
     async def test_ger_contacts(self):
         contacts = [Contact(), Contact(), Contact()]
         self.session.query().filter_by().limit().offset().all.return_value = contacts
-        result = await get_contacts(limit=10, offset=0, user=self.user, db=self.session, first_name=None, last_name=None, email=None)
+        result = await get_contacts(
+            limit=10,
+            offset=0,
+            user=self.user,
+            db=self.session,
+            first_name=None,
+            last_name=None,
+            email=None,
+        )
         self.assertEqual(result, contacts)
 
     async def test_ger_contacts_with_filter(self):
-        first_name = 'first_test_name'
-        last_name = 'last_test_name'
-        test_email = 'test_email@gmail.com'
+        first_name = "first_test_name"
+        last_name = "last_test_name"
+        test_email = "test_email@gmail.com"
         contact_1 = Contact(first_name=first_name)
         contact_2 = Contact(last_name=last_name)
         contact_3 = Contact(email=test_email)
         contacts = [contact_1, contact_2, contact_3]
         self.session.query().filter().limit().offset().all.return_value = contacts
-        result = await get_contacts(10, 0, self.user, self.session, first_name, last_name, test_email)
+        result = await get_contacts(
+            10, 0, self.user, self.session, first_name, last_name, test_email
+        )
         self.assertEqual(len(result), 3)
 
     async def test_ger_contacts_by_id(self):
@@ -53,12 +63,12 @@ class TestContacts(unittest.IsolatedAsyncioTestCase):
 
     async def test_create_contact(self):
         body = ContactModel(
-            first_name='test',
+            first_name="test",
             last_name="test",
-            email='test@gmail.com',
-            phone='0980000000',
+            email="test@gmail.com",
+            phone="0980000000",
             birthday=datetime.datetime.now(),
-            description='test',
+            description="test",
             favorites=False,
             created_at=datetime.datetime.now(),
             updated_at=datetime.datetime.now(),
@@ -83,12 +93,12 @@ class TestContacts(unittest.IsolatedAsyncioTestCase):
 
     async def test_update_contact(self):
         body = ContactModel(
-            first_name='test',
+            first_name="test",
             last_name="test",
-            email='test@gmail.com',
-            phone='0980000000',
+            email="test@gmail.com",
+            phone="0980000000",
             birthday=datetime.datetime.now(),
-            description='test',
+            description="test",
             favorites=False,
             created_at=datetime.datetime.now(),
             updated_at=datetime.datetime.now(),
@@ -100,12 +110,12 @@ class TestContacts(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result, contact)
 
         body = ContactModel(
-            first_name='test',
+            first_name="test",
             last_name="test",
-            email='test@gmail.com',
-            phone='0980000000',
+            email="test@gmail.com",
+            phone="0980000000",
             birthday=datetime.datetime.now(),
-            description='test',
+            description="test",
             favorites=False,
             created_at=datetime.datetime.now(),
             updated_at=datetime.datetime.now(),
@@ -116,13 +126,23 @@ class TestContacts(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(result)
 
     async def test_get_upcoming_birthdays_2(self):
-        contact_1 = Contact(id=1, user_id=1, first_name="John Doe",
-                            birthday=datetime.datetime.now().date() + datetime.timedelta(days=2))
-        contact_2 = Contact(id=2, user_id=1, first_name="Jane Doe",
-                            birthday=datetime.datetime.now().date() + datetime.timedelta(days=3))
+        contact_1 = Contact(
+            id=1,
+            user_id=1,
+            first_name="John Doe",
+            birthday=datetime.datetime.now().date() + datetime.timedelta(days=2),
+        )
+        contact_2 = Contact(
+            id=2,
+            user_id=1,
+            first_name="Jane Doe",
+            birthday=datetime.datetime.now().date() + datetime.timedelta(days=3),
+        )
         contacts = [contact_1, contact_2]
         self.session.query().filter().limit().offset().all.return_value = contacts
-        upcoming_birthdays = await get_upcoming_birthdays(limit=10, offset=0, user=self.user, db=self.session)
+        upcoming_birthdays = await get_upcoming_birthdays(
+            limit=10, offset=0, user=self.user, db=self.session
+        )
 
         self.assertEqual(len(upcoming_birthdays), 2)
         self.assertEqual(upcoming_birthdays[0].id, 1)
@@ -131,5 +151,5 @@ class TestContacts(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(upcoming_birthdays[1].first_name, "Jane Doe")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

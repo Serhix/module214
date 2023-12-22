@@ -28,12 +28,15 @@ async def startup():
     :return: A dictionary with the following structure
     :doc-author: Trelent
     """
-    r = redis.Redis(host='localhost', port=6379, db=0, encoding="utf-8", decode_responses=True)
+    r = redis.Redis(
+        host="localhost", port=6379, db=0, encoding="utf-8", decode_responses=True
+    )
     await FastAPILimiter.init(r)
 
-app.include_router(contacts.router, prefix='/api')
-app.include_router(auth.router, prefix='/api')
-app.include_router(users.router, prefix='/api')
+
+app.include_router(contacts.router, prefix="/api")
+app.include_router(auth.router, prefix="/api")
+app.include_router(users.router, prefix="/api")
 
 
 @app.get("/")
@@ -46,7 +49,7 @@ def read_root():
     :return: A dictionary with the key 'message' and value 'contact api'
     :doc-author: Trelent
     """
-    return {'messege': 'Contact api'}
+    return {"messege": "Contact api"}
 
 
 if __name__ == "__main__":

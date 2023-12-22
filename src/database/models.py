@@ -1,5 +1,14 @@
-from sqlalchemy import Boolean, Column, Integer, String, DateTime, func, event, ForeignKey
-from sqlalchemy.orm import declarative_base,relationship
+from sqlalchemy import (
+    Boolean,
+    Column,
+    Integer,
+    String,
+    DateTime,
+    func,
+    event,
+    ForeignKey,
+)
+from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
 
@@ -16,7 +25,9 @@ class Contact(Base):
     favorites = Column(Boolean, default=False)
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
-    user_id = Column('user_id', ForeignKey("users.id", ondelete='CASCADE'), default=None)
+    user_id = Column(
+        "user_id", ForeignKey("users.id", ondelete="CASCADE"), default=None
+    )
     user = relationship("User", backref="contacts")
 
 
@@ -27,12 +38,12 @@ class User(Base):
     email = Column(String(150), nullable=False, unique=True)
     password = Column(String(255), nullable=False)
     avatar = Column(String(255), nullable=True)
-    created_at = Column('creates_at', DateTime, default=func.now())
+    created_at = Column("creates_at", DateTime, default=func.now())
     refresh_token = Column(String(255), nullable=True)
     confirmed = Column(Boolean, default=False)
 
 
-@event.listens_for(Contact, 'before_insert')
+@event.listens_for(Contact, "before_insert")
 def updated_favorites(mapper, conn, target):
     """
     The updated_favorites function is a listener that listens for the 'after_insert' event.
@@ -44,9 +55,6 @@ def updated_favorites(mapper, conn, target):
     :param target: Access the row object
     :return: The target object
     """
-    family = ['Кохана', 'Батько', 'Мама']
+    family = ["Кохана", "Батько", "Мама"]
     if target.first_name in family:
         target.favorites = True
-
-
-

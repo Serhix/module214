@@ -2,7 +2,9 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field, EmailStr, constr
 
-ValidPhone = constr(pattern="^\\+?\\d{1,4}?[-.\\s]?\\(?\\d{1,3}?\\)?[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,9}$")
+ValidPhone = constr(
+    pattern="^\\+?\\d{1,4}?[-.\\s]?\\(?\\d{1,3}?\\)?[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,9}$"
+)
 
 
 class ContactModel(BaseModel):

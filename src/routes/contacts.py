@@ -10,15 +10,16 @@ from src.schemas import ContactModel, ContactResponse
 from src.services.auth import auth_service
 from src.repository import contacts as repository_contacts
 
-router = APIRouter(prefix="/contacts", tags=['contacts'])
+router = APIRouter(prefix="/contacts", tags=["contacts"])
 
 
 @router.get("/upcoming_birthdays", response_model=List[ContactResponse])
 async def get_contacts_by_upcoming_birthdays(
-        limit: int = Query(10, le=500),
-        offset: int = 0,
-        db: Session = Depends(get_db),
-        current_user: User = Depends(auth_service.get_current_user)):
+    limit: int = Query(10, le=500),
+    offset: int = 0,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth_service.get_current_user),
+):
     """
     The get_contacts_by_upcoming_birthdays function returns a list of contacts with upcoming birthdays.
 
@@ -30,19 +31,22 @@ async def get_contacts_by_upcoming_birthdays(
     :return: A list of contacts
     :doc-author: Trelent
     """
-    contacts = await repository_contacts.get_upcoming_birthdays(limit, offset, current_user, db)
+    contacts = await repository_contacts.get_upcoming_birthdays(
+        limit, offset, current_user, db
+    )
     return contacts
 
 
 @router.get("/", response_model=List[ContactResponse])
 async def get_contacts(
-        first_name: Annotated[str | None, Query(min_length=3, max_length=50)] = None,
-        last_name: Annotated[str | None, Query(min_length=3, max_length=50)] = None,
-        email: Annotated[str | None, Query(min_length=3, max_length=50)] = None,
-        limit: Optional[int] = Query(10, le=500),
-        offset: int = 0,
-        db: Session = Depends(get_db),
-        current_user: User = Depends(auth_service.get_current_user)):
+    first_name: Annotated[str | None, Query(min_length=3, max_length=50)] = None,
+    last_name: Annotated[str | None, Query(min_length=3, max_length=50)] = None,
+    email: Annotated[str | None, Query(min_length=3, max_length=50)] = None,
+    limit: Optional[int] = Query(10, le=500),
+    offset: int = 0,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth_service.get_current_user),
+):
     """
     The get_contacts function returns a list of contacts.
 
@@ -56,15 +60,18 @@ async def get_contacts(
     :return: A list of all contacts
     :doc-author: Trelent
     """
-    contacts = await repository_contacts.get_contacts(limit, offset, current_user, db, first_name, last_name, email)
+    contacts = await repository_contacts.get_contacts(
+        limit, offset, current_user, db, first_name, last_name, email
+    )
     return contacts
 
 
 @router.get("/{contact_id}", response_model=ContactResponse)
 async def get_contact(
-        contact_id: int = Path(ge=1),
-        db: Session = Depends(get_db),
-        current_user: User = Depends(auth_service.get_current_user)):
+    contact_id: int = Path(ge=1),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth_service.get_current_user),
+):
     """
     The get_contact function is a GET request that returns the contact with the given ID.
     The function takes in an integer as a path parameter, and uses it to query for the contact.
@@ -81,15 +88,18 @@ async def get_contact(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not Found")
     return contact
 
-#RateLimiter need Redis
+
+# RateLimiter need Redis
 # @router.post("/", response_model=ContactResponse, status_code=status.HTTP_201_CREATED,
 #              description='No more than 1 requests per 10 second', dependencies=[Depends(RateLimiter(times=1, seconds=10))])
 
+
 @router.post("/", response_model=ContactResponse, status_code=status.HTTP_201_CREATED)
 async def create_contact(
-        body: ContactModel,
-        db: Session = Depends(get_db),
-        current_user: User = Depends(auth_service.get_current_user)):
+    body: ContactModel,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth_service.get_current_user),
+):
     """
     The create_contact function creates a new contact in the database.
 
@@ -105,10 +115,11 @@ async def create_contact(
 
 @router.put("/{contact_id}", response_model=ContactResponse)
 async def update_contact(
-        body: ContactModel,
-        contact_id: int = Path(ge=1),
-        db: Session = Depends(get_db),
-        current_user: User = Depends(auth_service.get_current_user)):
+    body: ContactModel,
+    contact_id: int = Path(ge=1),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth_service.get_current_user),
+):
     """
     The update_contact function updates a contact in the database.
         The function takes an id, body and db as parameters.
@@ -129,9 +140,10 @@ async def update_contact(
 
 @router.delete("/{contact_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_contact(
-        contact_id: int = Path(ge=1),
-        db: Session = Depends(get_db),
-        current_user: User = Depends(auth_service.get_current_user)):
+    contact_id: int = Path(ge=1),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(auth_service.get_current_user),
+):
     """
     The remove_contact function removes a contact from the database.
 

@@ -26,9 +26,12 @@ async def read_users_me(current_user: User = Depends(auth_service.get_current_us
     return current_user
 
 
-@router.patch('/avatar', response_model=UserDb)
-async def update_avatar_user(file: UploadFile = File(), current_user: User = Depends(auth_service.get_current_user),
-                             db: Session = Depends(get_db)):
+@router.patch("/avatar", response_model=UserDb)
+async def update_avatar_user(
+    file: UploadFile = File(),
+    current_user: User = Depends(auth_service.get_current_user),
+    db: Session = Depends(get_db),
+):
     """
     The update_avatar_user function is used to update the avatar of a user.
         The function takes in an UploadFile object, which contains the file that will be uploaded to Cloudinary.
@@ -45,11 +48,14 @@ async def update_avatar_user(file: UploadFile = File(), current_user: User = Dep
         cloud_name=settings.cloudinary_name,
         api_key=settings.cloudinary_api_key,
         api_secret=settings.cloudinary_api_secret,
-        secure=True
+        secure=True,
     )
 
-    r = cloudinary.uploader.upload(file.file, public_id=f'NotesApp/{current_user.username}', overwrite=True)
-    src_url = cloudinary.CloudinaryImage(f'NotesApp/{current_user.username}')\
-                        .build_url(width=250, height=250, crop='fill', version=r.get('version'))
+    r = cloudinary.uploader.upload(
+        file.file, public_id=f"NotesApp/{current_user.username}", overwrite=True
+    )
+    src_url = cloudinary.CloudinaryImage(f"NotesApp/{current_user.username}").build_url(
+        width=250, height=250, crop="fill", version=r.get("version")
+    )
     user = await repository_users.update_avatar(current_user.email, src_url, db)
     return user

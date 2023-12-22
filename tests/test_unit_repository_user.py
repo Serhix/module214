@@ -1,4 +1,3 @@
-import datetime
 import unittest
 from unittest.mock import MagicMock
 
@@ -24,17 +23,16 @@ class TestContacts(unittest.IsolatedAsyncioTestCase):
         self.session = MagicMock(spec=Session)
 
     async def test_ger_user_by_email(self):
-        email = 'test@gmail.com'
+        email = "test@gmail.com"
         user = User(email=email)
         self.session.query().filter().first.return_value = user
         result = await get_user_by_email(email, db=self.session)
         self.assertEqual(result, user)
 
     async def test_greate_user(self):
-
         body = UserModel(
-            username='Testuser',
-            email='test@gmail.com',
+            username="Testuser",
+            email="test@gmail.com",
             password="testpass1234",
         )
         result = await create_user(body=body, db=self.session)
@@ -49,14 +47,14 @@ class TestContacts(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(user.refresh_token, refresh_token)
 
     async def test_update_avatar(self):
-        email = 'test@gmail.com'
-        url = 'test.image.com'
+        email = "test@gmail.com"
+        url = "test.image.com"
         user = User(email=email)
         result = await update_avatar(email, url, self.session)
         self.assertEqual(result.avatar, url)
 
     async def test_confirmed_email(self):
-        email = 'test@gmail.com'
+        email = "test@gmail.com"
         user = User(email=email, confirmed=False)
         self.session.query().filter().first.return_value = user
         await confirmed_email(email, self.session)
@@ -64,11 +62,11 @@ class TestContacts(unittest.IsolatedAsyncioTestCase):
 
     async def test_update_password(self):
         user = User()
-        test_hash_pass = 'sdkjlfsdlkfjnsdlkjfnsdlkfsdlkfjsdfsdf234234nb23'
+        test_hash_pass = "sdkjlfsdlkfjnsdlkjfnsdlkfsdlkfjsdfsdf234234nb23"
         self.session.query().filter().first.return_value = user
         result = await update_password(user, test_hash_pass, self.session)
         self.assertEqual(user.password, test_hash_pass)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
