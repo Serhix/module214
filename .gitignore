@@ -166,3 +166,4 @@ cython_debug/
 .idea/dbnavigator.xml
 /coverage_html_report/
 .idea/workspace.xml
+test.db
